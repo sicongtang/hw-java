@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bobby</groupId>
-	<artifactId>Multi-threadingDesign</artifactId>
+	<artifactId>hw-java</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Multi-threadingDesign</name>
-	<description>Multi-threadingDesign</description>
+	<name>hw-java</name>
+	<description>hw-java</description>
 
 
 	<dependencies>
@@ -15,11 +15,13 @@
 			<version>2.0</version>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>io.netty</groupId> -->
-<!-- 			<artifactId>netty</artifactId> -->
-<!-- 			<version>4.0.0.Alpha8</version> -->
-<!-- 		</dependency> -->
-		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
+
 </project>
