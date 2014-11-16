@@ -37,9 +37,23 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.8.2</artifactId>
-			<version>0.8.1</version>
+			<artifactId>kafka_2.8.0</artifactId>
+			<version>0.8.1.1</version>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>nexus</id>
+			<name>local private nexus</name>
+			<url>http://maven.oschina.net/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 </project>
