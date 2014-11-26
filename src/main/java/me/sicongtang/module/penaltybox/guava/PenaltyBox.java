@@ -19,15 +19,16 @@ public class PenaltyBox {
 
 	private static PenaltyConfig config;
 
-	private static LoadingCache<String, Long> cache;
+	private static LoadingCache<String, StatisticsInfo> cache;
 
 	private PenaltyBox() {
 		config = new PenaltyConfig();
 
 		cache = CacheBuilder.newBuilder().maximumSize(config.getMaxSize())
-				.expireAfterWrite(config.getExpireSecs(), TimeUnit.SECONDS).build(new CacheLoader<String, Long>() {
-					public Long load(String key) throws Exception {
-						return 0L;
+				.expireAfterWrite(config.getExpireSecs(), TimeUnit.SECONDS)
+				.build(new CacheLoader<String, StatisticsInfo>() {
+					public StatisticsInfo load(String key) throws Exception {
+						return new StatisticsInfo();
 					}
 				});
 
@@ -44,20 +45,23 @@ public class PenaltyBox {
 		return box;
 	}
 
-	public LoadingCache<String, Long> getLoadingCache() {
+	public LoadingCache<String, StatisticsInfo> getLoadingCache() {
 		return cache;
 	}
 
-	private synchronized void record(String key) {
-		Long count;
+	private synchronized StatisticsInfo record(String key) {
+		StatisticsInfo info = null;
 		try {
-			count = cache.get(key);
-			count = count + 1;
-			cache.put(key, count);
+			info = cache.get(key);
+			info.increaseCount();
+			// only below threshold can be put into cache
+			if (info.getCount() <= config.getThreshold()) {
+				cache.put(key, info);
+			}
 		} catch (ExecutionException e) {
-			logger.error("Encounter error while geting key from cache.");
-
+			logger.error("Encounter error while geting key from cache.", e);
 		}
+		return info;
 	}
 
 	public boolean isPenalty(String key) {
@@ -73,18 +77,20 @@ public class PenaltyBox {
 			return bool;
 		}
 
-		record(key);
+		StatisticsInfo info = null;
+		info = record(key);
 
 		// get count
-		Long count = null;
-		try {
-			count = cache.get(key);
-		} catch (ExecutionException e) {
-			logger.error("Encounter error while geting key from cache.");
+		if (info == null || info.getCount() <= config.getThreshold()) {
+			try {
+				info = cache.get(key);
+			} catch (ExecutionException e) {
+				logger.error("Encounter error while geting key from cache.", e);
+			}
 		}
 
 		// check if great than threshold
-		if (count > config.getThreshold()) {
+		if (info.getCount() > config.getThreshold()) {
 			bool = true;
 		}
 
@@ -97,14 +103,14 @@ public class PenaltyBox {
 		public void run() {
 			StringBuilder builder = new StringBuilder();
 			while (true) {
-				Set<Entry<String, Long>> entrySet = cache.asMap().entrySet();
+				Set<Entry<String, StatisticsInfo>> entrySet = cache.asMap().entrySet();
 				logger.info("The total number of penalty box element is " + entrySet.size());
 				int count = 0;
 
 				builder.delete(0, builder.length());
 
-				for (Entry<String, Long> entry : entrySet) {
-					if (entry.getValue() > config.getThreshold()) {
+				for (Entry<String, StatisticsInfo> entry : entrySet) {
+					if (entry.getValue().getCount() > config.getThreshold()) {
 						count++;
 						builder.append(entry.getKey());
 						builder.append("=");

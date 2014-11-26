@@ -31,57 +31,69 @@ public class GuavaCaches {
 
 	public static void main(String[] args) throws Exception {
 		String ip1 = "192.168.1.1";
-		LoadingCache<String, Integer> cacheMap = CacheBuilder.newBuilder().maximumSize(10)
-				.expireAfterWrite(3, TimeUnit.SECONDS).removalListener(new RemovalListener<String, Integer>() {
+		LoadingCache<String, CacheValue> cacheMap = CacheBuilder.newBuilder().maximumSize(10)
+				.expireAfterWrite(3, TimeUnit.SECONDS).removalListener(new RemovalListener<String, CacheValue>() {
 					@Override
-					public void onRemoval(RemovalNotification<String, Integer> notification) {
+					public void onRemoval(RemovalNotification<String, CacheValue> notification) {
 						logger.info("Key: " + notification.getKey() + ", Value: " + notification.getValue());
 					}
 
-				}).build(new CacheLoader<String, Integer>() {
+				}).build(new CacheLoader<String, CacheValue>() {
 					// call cache.get if absent, this will return result of load
 					// method
-					public Integer load(String key) throws Exception {
-						return 0;
+					public CacheValue load(String key) throws Exception {
+						return null;
 					}
 				});
 
-		Integer ip1Value = cacheMap.getIfPresent(ip1);
-		logger.info("ip1Value: " + ip1Value);
-		logger.info("KeySet: " + cacheMap.asMap().keySet());
-
-		cacheMap.put(ip1, 5);
+		//CacheValue ip1Value = cacheMap.getIfPresent(ip1);
+		//logger.info("ip1Value: " + ip1Value);
+		//logger.info("KeySet: " + cacheMap.asMap().keySet());
+		CacheValue value = new CacheValue();
+		value.setCount(1L);
+		cacheMap.put(ip1, value);
+		
+		while(true) {
+			CacheValue val2 = cacheMap.get(ip1);
+			val2.setCount(val2.getCount() + 1);
+			cacheMap.put(ip1, val2);
+			logger.info("Print val2.getCount = " + val2.getCount() );
+		}
+		
+		//cacheMap.put(ip1, 5);
 		// cacheMap.invalidate(ip1);
 
-		cacheMap.put(ip1, cacheMap.get(ip1) + 1);
-
-		logger.info("KeySet: " + cacheMap.asMap().keySet());
-		logger.info(cacheMap.asMap().get(ip1));
-
-		Thread.currentThread().sleep(5000);
+		//cacheMap.put(ip1, cacheMap.get(ip1) + 1);
+		
+		
+		
 
 		// cacheMap.put("192.168.1.2", 10);
 		// cacheMap.put("192.168.1.3", 10);
 
-		logger.info("KeySet: " + cacheMap.asMap().keySet());
-
-		Thread.currentThread().sleep(5000);
+		
 
 		// cacheMap.put("192.168.1.4", 10);
 		// cacheMap.put("192.168.1.5", 10);
 
-		logger.info("KeySet: " + cacheMap.asMap().keySet());
-
-		// wait forever
-		synchronized (GuavaCaches.class) {
-			while (true) {
-				try {
-					GuavaCaches.class.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+//		if (true) {
+//			logger.info("KeySet: " + cacheMap.asMap().keySet());
+//			logger.info(cacheMap.asMap().get(ip1));
+//			Thread.currentThread().sleep(5000);
+//			logger.info("KeySet: " + cacheMap.asMap().keySet());
+//			Thread.currentThread().sleep(5000);
+//			logger.info("KeySet: " + cacheMap.asMap().keySet());
+//			// wait forever
+//			synchronized (GuavaCaches.class) {
+//				while (true) {
+//					try {
+//						GuavaCaches.class.wait();
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}
 
 	}
 

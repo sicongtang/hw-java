@@ -13,6 +13,12 @@ public class PenaltyBoxExpireTest {
 				public void run() {
 					while(true){
 						box.isPenalty(ip);
+						
+						try {
+							Thread.sleep(300);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					
 				}
