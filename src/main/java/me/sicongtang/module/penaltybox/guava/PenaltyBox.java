@@ -121,31 +121,11 @@ public class PenaltyBox {
 		public void run() {
 			StringBuilder builder = new StringBuilder();
 			while (true) {
-				Set<Entry<String, StatisticsInfo>> entrySet = penaltyCache.asMap().entrySet();
-				logger.info("The total number of penalty box element is " + entrySet.size());
-				int count = 0;
 
-				builder.delete(0, builder.length());
-
-				for (Entry<String, StatisticsInfo> entry : entrySet) {
-					// if (entry.getValue().getCount() > config.getThreshold())
-					// {
-					count++;
-					builder.append(entry.getKey());
-					builder.append("=");
-					builder.append(entry.getValue());
-					builder.append("|");
-					// }
+				if (config.getDebugMode()) {
+					printCache(builder);
 				}
-
-				logger.info("The number of penalty box element that exceeds threshold[=" + config.getThreshold()
-						+ "] is " + count);
-
-				if (builder.length() > 0) {
-					logger.info("Try to print key-value pairs that exceeds threshold, " + builder.toString());
-				} else {
-					logger.info("No key-value pairs that exceeds threshold");
-				}
+				printPenaltyCache(builder);
 
 				try {
 					TimeUnit.SECONDS.sleep(config.getPrintInterval());
@@ -155,6 +135,54 @@ public class PenaltyBox {
 
 			}
 
+		}
+
+		private void printCache(StringBuilder builder) {
+			Set<Entry<String, StatisticsInfo>> entrySet = cache.asMap().entrySet();
+			logger.info("-------------------------------------------------------");
+			int count = 0;
+
+			builder.delete(0, builder.length());
+
+			for (Entry<String, StatisticsInfo> entry : entrySet) {
+				count++;
+				builder.append(entry.getKey());
+				builder.append("=");
+				builder.append(entry.getValue());
+				builder.append("|");
+			}
+
+			logger.info("The number of cache element in cache is " + count);
+
+			if (builder.length() > 0) {
+				logger.info("Try to print key-value pairs found in cache, " + builder.toString());
+			} else {
+				logger.info("No key-value pairs found in cache");
+			}
+		}
+
+		private void printPenaltyCache(StringBuilder builder) {
+			Set<Entry<String, StatisticsInfo>> entrySet = penaltyCache.asMap().entrySet();
+			logger.info("-------------------------------------------------------");
+			int count = 0;
+
+			builder.delete(0, builder.length());
+
+			for (Entry<String, StatisticsInfo> entry : entrySet) {
+				count++;
+				builder.append(entry.getKey());
+				builder.append("=");
+				builder.append(entry.getValue());
+				builder.append("|");
+			}
+
+			logger.info("The number of penalty box that exceeds threshold[=" + config.getThreshold() + "] is " + count);
+
+			if (builder.length() > 0) {
+				logger.info("Try to print key-value pairs that exceeds threshold, " + builder.toString());
+			} else {
+				logger.info("No key-value pairs that exceeds threshold in penalty box");
+			}
 		}
 	}
 }

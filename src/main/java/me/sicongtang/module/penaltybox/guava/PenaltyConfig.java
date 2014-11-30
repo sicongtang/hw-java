@@ -12,6 +12,7 @@ public class PenaltyConfig {
 	private long printInterval;
 	private long penaltyMaxSize;
 	private long penaltyExpireSecs;
+	private boolean debugMode;
 
 	public PenaltyConfig() {
 		this.cacheMaxSize = 5; // default as 10000 size
@@ -23,7 +24,9 @@ public class PenaltyConfig {
 		
 		this.printInterval = 10; // default as 5 mins - 60 * 5
 		this.penaltyMaxSize = 5; // default as 5000 size
-		this.penaltyExpireSecs = 60; // default as 2 hour - 60 * 60 * 1
+		this.penaltyExpireSecs = 30; // default as 2 hour - 60 * 60 * 1
+		
+		this.debugMode = true;
 	}
 
 	public boolean isDisabled() {
@@ -58,5 +61,8 @@ public class PenaltyConfig {
 		return penaltyExpireSecs;
 	}
 
+	public boolean getDebugMode() {
+		return debugMode;
+	}
 
 }
