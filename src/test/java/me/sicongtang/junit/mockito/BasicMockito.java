@@ -207,5 +207,7 @@ public class BasicMockito {
 //
 //		// Any consecutive call: prints "foo" as well (last stubbing wins).
 //		System.out.println(mock.someMethod("some arg"));
+
 	}
+
 }
