@@ -1,13 +1,24 @@
 package me.sicongtang.junit.mockito;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
+import org.mockito.internal.verification.api.VerificationData;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.verification.Timeout;
+import org.mockito.verification.VerificationMode;
 
 public class BasicMockito {
 
@@ -196,18 +207,214 @@ public class BasicMockito {
 	 */
 	@Test
 	public void testStubbingConsecutiveCalls() {
-		
-//		when(mock.someMethod("some arg")).thenThrow(new RuntimeException()).thenReturn("foo");
-//
-//		// First call: throws runtime exception:
-//		mock.someMethod("some arg");
-//
-//		// Second call: prints "foo"
-//		System.out.println(mock.someMethod("some arg"));
-//
-//		// Any consecutive call: prints "foo" as well (last stubbing wins).
-//		System.out.println(mock.someMethod("some arg"));
+		List<String> mock = mock(List.class);
 
+		when(mock.contains("some arg")).thenThrow(new RuntimeException()).thenReturn(false);
+
+		// First call: throws runtime exception:
+		mock.add("some arg");
+
+		// Second call: prints "false"
+		System.out.println(mock.add("some arg"));
+
+		// Any consecutive call: prints "false" as well (last stubbing wins).
+		System.out.println(mock.add("some arg"));
+
+	}
+
+	/**
+	 * 11. Stubbing with callbacks
+	 */
+	@Test
+	public void testStubbingWithCallbacks() {
+		HashMap<String, String> mock = mock(HashMap.class);
+
+		when(mock.get(anyString())).thenAnswer(new Answer() {
+			public Object answer(InvocationOnMock invocation) {
+				Object[] args = invocation.getArguments();
+				Object mock = invocation.getMock();
+				return "called with arguments: " + args;
+			}
+		});
+
+		// Following prints "called with arguments: foo"
+		System.out.println(mock.get("foo"));
+	}
+
+	/**
+	 * 12. doThrow()|doAnswer()|doNothing()|doReturn() family of methods for
+	 * stubbing voids (mostly)
+	 */
+	@Test
+	public void testStubbingVoids() {
+		List<String> mockedList = mock(List.class);
+
+		doThrow(new RuntimeException()).when(mockedList).clear();
+
+		// following throws RuntimeException:
+		mockedList.clear();
+	}
+
+	/**
+	 * 13. Spying on real objects
+	 */
+	@Test
+	public void testSpyingOnRealObjects() {
+		List list = new LinkedList();
+		List spy = spy(list);
+
+		// optionally, you can stub out some methods:
+		when(spy.size()).thenReturn(100);
+
+		// using the spy calls real methods
+		spy.add("one");
+		spy.add("two");
+
+		// prints "one" - the first element of a list
+		System.out.println(spy.get(0));
+
+		// size() method was stubbed - 100 is printed
+		System.out.println(spy.size());
+
+		// optionally, you can verify
+		verify(spy).add("one");
+		verify(spy).add("two");
+	}
+
+	/**
+	 * 14. Changing default return values of unstubbed invocations (Since 1.7)
+	 * However, it can be helpful for working with legacy systems.
+	 */
+	@Test
+	public void testChangingDefaultReturnValuesOfUnstubbedInvocations() {
+		List<String> mock = mock(List.class, Mockito.RETURNS_SMART_NULLS);
+
+		// calling unstubbed method here:
+		String stuff = mock.get(1);
+
+		// using object returned by unstubbed call:
+		stuff.toString();
+
+		// Above doesn't yield NullPointerException this time!
+		// Instead, SmartNullPointerException is thrown.
+		// Exception's cause links to unstubbed mock.getStuff() - just click on
+		// the stack trace.
+	}
+
+	/**
+	 * 15. Capturing arguments for further assertions (Since 1.8.0)
+	 */
+	@Test
+	public void testCapturingArgsForFurtherAssertions() {
+		// ArgumentCaptor<Person> argument =
+		// ArgumentCaptor.forClass(Person.class);
+		// verify(mock).doSomething(argument.capture());
+		// assertEquals("John", argument.getValue().getName());
+	}
+
+	/**
+	 * 16. Real partial mocks (Since 1.8.0)
+	 */
+	@Test
+	public void testRealPartialMocks() {
+		// you can create partial mock with spy() method:
+		List list = spy(new LinkedList());
+
+		// you can enable partial mock capabilities selectively on mocks:
+		List mock = mock(List.class);
+		// Be sure the real implementation is 'safe'.
+		// If real implementation throws exceptions or depends on specific state
+		// of the object then you're in trouble.
+		when(mock.get(0)).thenCallRealMethod();
+	}
+
+	/**
+	 * 17. Resetting mocks (Since 1.8.0)
+	 */
+	@Test
+	public void testResttingMocks() {
+		List mock = mock(List.class);
+		when(mock.size()).thenReturn(10);
+		mock.add(1);
+
+		reset(mock);
+		// at this point the mock forgot any interactions & stubbing
+	}
+
+	/**
+	 * 18. Troubleshooting & validating framework usage (Since 1.8.0)
+	 */
+	@Test
+	public void testValidatingFrameworkUsage() {
+
+	}
+
+	/**
+	 * 19. Aliases for behavior driven development (Since 1.8.0)
+	 */
+	@Test
+	public void testAliasesForBehaviorDrivenDevelopment() {
+
+	}
+
+	/**
+	 * 20. (**New**) Serializable mocks (Since 1.8.1)
+	 */
+	@Test
+	public void testSerializableMocks() {
+		List serializableMock = mock(List.class, withSettings().serializable());
+		// No worries, you will hardly ever use it.
+		List<Object> list = new ArrayList<Object>();
+		List<Object> spy = mock(ArrayList.class, withSettings().spiedInstance(list).defaultAnswer(CALLS_REAL_METHODS)
+				.serializable());
+
+	}
+
+	/**
+	 * 21. (**New**) New annotations: @Captor, @Spy, @InjectMocks (Since 1.8.3)
+	 */
+	@Test
+	public void testNewAnnotations() {
+		/*
+		 * @Captor simplifies creation of ArgumentCaptor - useful when the
+		 * argument to capture is a nasty generic class and you want to avoid
+		 * compiler warnings
+		 * 
+		 * @Spy - you can use it instead spy(Object).
+		 * 
+		 * @InjectMocks - injects mocks into tested object automatically.
+		 */
+	}
+
+	/**
+	 * 22. (**New**) Verification with timeout (Since 1.8.5)
+	 */
+	@Test
+	public void testVerifyicationWithTimeout() {
+		List mock = mock(List.class);
+		
+		// passes when someMethod() is called within given time span
+		verify(mock, timeout(100)).add("a");
+		// above is an alias to:
+		verify(mock, timeout(100).times(1)).add("a");
+
+		// passes when someMethod() is called *exactly* 2 times within given
+		// time span
+		verify(mock, timeout(100).times(2)).add("a");
+
+		// passes when someMethod() is called *at lest* 2 times within given
+		// time span
+		verify(mock, timeout(100).atLeast(2)).add("a");
+
+		// verifies someMethod() within given time span using given verification
+		// mode
+		// useful only if you have your own custom verification modes.
+		verify(mock, new Timeout(100, new VerificationMode() {
+			@Override
+			public void verify(VerificationData data) {
+				
+			}
+		})).add("a");
 	}
 
 }
