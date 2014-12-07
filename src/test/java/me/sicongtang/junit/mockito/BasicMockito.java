@@ -209,10 +209,14 @@ public class BasicMockito {
 	public void testStubbingConsecutiveCalls() {
 		List<String> mock = mock(List.class);
 
-		when(mock.contains("some arg")).thenThrow(new RuntimeException()).thenReturn(false);
+		when(mock.add("some arg")).thenThrow(new RuntimeException()).thenReturn(false);
 
 		// First call: throws runtime exception:
-		mock.add("some arg");
+		try {
+			mock.add("some arg");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		// Second call: prints "false"
 		System.out.println(mock.add("some arg"));
@@ -244,6 +248,15 @@ public class BasicMockito {
 	/**
 	 * 12. doThrow()|doAnswer()|doNothing()|doReturn() family of methods for
 	 * stubbing voids (mostly)
+	 * 
+	 * http://docs.mockito.googlecode.com/hg/org/mockito/Mockito.html#doNothing(
+	 * )
+	 * 
+	 * http://docs.mockito.googlecode.com/hg/org/mockito/Mockito.html#doReturn(
+	 * java.lang.Object)
+	 * 
+	 * http://docs.mockito.googlecode.com/hg/org/mockito/Mockito.html#doAnswer(
+	 * org.mockito.stubbing.Answer)
 	 */
 	@Test
 	public void testStubbingVoids() {
@@ -253,6 +266,75 @@ public class BasicMockito {
 
 		// following throws RuntimeException:
 		mockedList.clear();
+	}
+
+	@Test
+	public void testDoNothting() {
+		/**
+		 * Stubbing consecutive calls on a void method
+		 */
+		List mock = mock(LinkedList.class);
+
+		doNothing().doThrow(new RuntimeException()).when(mock).add("a");
+
+		// does nothing the first time:
+		mock.add("a");
+
+		// throws RuntimeException the next time:
+		mock.add("a");
+
+		/**
+		 * When you spy real objects and you want the void method to do nothing:
+		 */
+		List list = new LinkedList();
+		List spy = spy(list);
+
+		// let's make clear() do nothing
+		doNothing().when(spy).clear();
+
+		spy.add("one");
+
+		// clear() does nothing, so the list still contains "one"
+		spy.clear();
+	}
+
+	@Test
+	public void testDoReturn() {
+		/**
+		 * 1. When spying real objects and calling real methods on a spy brings
+		 * side effects
+		 */
+
+		List list = new LinkedList();
+		List spy = spy(list);
+
+		// Impossible: real method is called so spy.get(0) throws
+		// IndexOutOfBoundsException (the list is yet empty)
+		try {
+			when(spy.get(0)).thenReturn("foo");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// You have to use doReturn() for stubbing:
+		doReturn("foo").when(spy).get(0);
+
+		/**
+		 * 2. Overriding a previous exception-stubbing:
+		 */
+		List mock = mock(LinkedList.class);
+		when(mock.get(0)).thenThrow(new RuntimeException());
+
+		// Impossible: the exception-stubbed foo() method is called so
+		// RuntimeException is thrown.
+		try {
+			when(mock.get(0)).thenReturn("bar");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// You have to use doReturn() for stubbing:
+		doReturn("bar").when(mock).get(0);
 	}
 
 	/**
@@ -392,7 +474,7 @@ public class BasicMockito {
 	@Test
 	public void testVerifyicationWithTimeout() {
 		List mock = mock(List.class);
-		
+
 		// passes when someMethod() is called within given time span
 		verify(mock, timeout(100)).add("a");
 		// above is an alias to:
@@ -412,7 +494,7 @@ public class BasicMockito {
 		verify(mock, new Timeout(100, new VerificationMode() {
 			@Override
 			public void verify(VerificationData data) {
-				
+
 			}
 		})).add("a");
 	}
