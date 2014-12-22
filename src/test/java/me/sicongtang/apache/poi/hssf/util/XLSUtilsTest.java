@@ -1,9 +1,11 @@
 package me.sicongtang.apache.poi.hssf.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
 
@@ -13,14 +15,26 @@ public class XLSUtilsTest {
 
 	@Test
 	public void testIterateFirstColumn() {
-		Sheet sheet = XLSUtils.loadSheetByFileName(fileName, 0);
+		Sheet rawSheet = XLSUtils.loadSheetByFileName(fileName, 0);
+		SheetWrapper wrapper = new SheetWrapper();
+		wrapper.setRawSheet(rawSheet);
+		
 		final List<String> cellValueList = new ArrayList<String>();
-		XLSUtils.iterateFirstColumn(sheet, new XLSHandler() {
+		XLSUtils.iteratorCellByRow(wrapper, new XLSHandler() {
 
 			@Override
 			public void processCell(Cell c) {
-				String cellValue = c.getStringCellValue();
-				cellValueList.add(cellValue);
+//				String cellValue = c.getStringCellValue();
+//				cellValueList.add(cellValue);
+			}
+			
+			@Override
+			public void processCellByRow(Row row) {
+				Iterator<Cell> iter = row.iterator();
+				while(iter.hasNext()) {
+					Cell c = iter.next();
+					System.out.println(c.getStringCellValue());
+				}
 			}
 		});
 

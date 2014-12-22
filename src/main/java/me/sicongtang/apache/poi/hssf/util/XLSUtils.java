@@ -59,39 +59,36 @@ public class XLSUtils {
 		return sheet;
 	}
 
-	public static void iterateAll(Sheet sheet, XLSHandler handler) {
+	public static void iterateAll(SheetWrapper wrapper, XLSHandler handler) {
+		Sheet rawSheet = wrapper.getRawSheet();
 		// Decide which rows to process
-		int rowStart = sheet.getFirstRowNum();
-		int rowEnd = sheet.getLastRowNum();
+		int rowStart = rawSheet.getFirstRowNum();
+		int rowEnd = rawSheet.getLastRowNum();
 
 		for (int rowNum = rowStart; rowNum <= rowEnd; rowNum++) {
-			Row r = sheet.getRow(rowNum);
+			Row r = rawSheet.getRow(rowNum);
 
 			int lastColumn = r.getLastCellNum();
 
 			for (int cn = 0; cn < lastColumn; cn++) {
 				Cell c = r.getCell(cn, Row.RETURN_BLANK_AS_NULL);
-				
+
 				handler.processCell(c);
 			}
 		}
 	}
-	
-	public static void iterateFirstColumn(Sheet sheet, XLSHandler handler) {
+
+	public static void iteratorCellByRow(SheetWrapper wrapper, XLSHandler handler) {
+		Sheet rawSheet = wrapper.getRawSheet();
 		// Decide which rows to process
-		int rowStart = sheet.getFirstRowNum();
-		int rowEnd = sheet.getLastRowNum();
+		int rowStart = wrapper.getRowStartIndex();
+		int rowEnd = rowStart + wrapper.getRowLimit() ;
 
-		for (int rowNum = rowStart; rowNum <= rowEnd; rowNum++) {
-			Row r = sheet.getRow(rowNum);
+		for (int i = rowStart; i < rowEnd; i++) {
+			Row r = rawSheet.getRow(i);
 
-			int lastColumn = 1;
-
-			for (int cn = 0; cn < lastColumn; cn++) {
-				Cell c = r.getCell(cn, Row.RETURN_BLANK_AS_NULL);
-				
-				handler.processCell(c);
-			}
+			handler.processCellByRow(r);
 		}
 	}
+
 }
