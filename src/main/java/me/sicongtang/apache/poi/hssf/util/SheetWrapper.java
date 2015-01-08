@@ -1,7 +1,13 @@
 package me.sicongtang.apache.poi.hssf.util;
 
+
 import org.apache.poi.ss.usermodel.Sheet;
 
+/**
+ * 
+ * @author BobbyTang
+ *
+ */
 public class SheetWrapper {
 	private Sheet rawSheet;
 	private int rowStartIndex;

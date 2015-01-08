@@ -1,5 +1,6 @@
 package me.sicongtang.apache.poi.hssf.util;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,6 +12,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+/**
+ * 
+ * @author BobbyTang
+ *
+ */
 public class XLSUtils {
 	private static Logger logger = Logger.getLogger(XLSUtils.class);
 
@@ -82,7 +88,8 @@ public class XLSUtils {
 		Sheet rawSheet = wrapper.getRawSheet();
 		// Decide which rows to process
 		int rowStart = wrapper.getRowStartIndex();
-		int rowEnd = rowStart + wrapper.getRowLimit() ;
+		int rowEnd = rowStart + wrapper.getRowLimit();
+		rowEnd = Math.min(rowEnd, rawSheet.getLastRowNum() + 1);
 
 		for (int i = rowStart; i < rowEnd; i++) {
 			Row r = rawSheet.getRow(i);
@@ -90,5 +97,4 @@ public class XLSUtils {
 			handler.processCellByRow(r);
 		}
 	}
-
 }
