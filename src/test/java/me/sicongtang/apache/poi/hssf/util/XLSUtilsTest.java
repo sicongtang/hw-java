@@ -16,8 +16,7 @@ public class XLSUtilsTest {
 	@Test
 	public void testIterateFirstColumn() {
 		Sheet rawSheet = XLSUtils.loadSheetByFileName(fileName, 0);
-		SheetWrapper wrapper = new SheetWrapper();
-		wrapper.setRawSheet(rawSheet);
+		SheetWrapper wrapper = new SheetWrapper(rawSheet);
 		
 		final List<String> cellValueList = new ArrayList<String>();
 		XLSUtils.iteratorCellByRow(wrapper, new XLSHandler() {
