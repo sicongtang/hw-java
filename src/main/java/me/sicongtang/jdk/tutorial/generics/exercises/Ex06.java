@@ -1,6 +1,6 @@
 package me.sicongtang.jdk.tutorial.generics.exercises;
 
-public class Ex6 {
+public class Ex06 {
 	public static <T extends Comparable<T>> int findFirstGreaterThan(T[] at, T elem) {
 		// ...
 		return 0;

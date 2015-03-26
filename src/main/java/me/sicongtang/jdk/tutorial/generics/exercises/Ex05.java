@@ -6,7 +6,7 @@ package me.sicongtang.jdk.tutorial.generics.exercises;
  * @author BobbyTang
  *
  */
-public class Ex5 {
+public class Ex05 {
 
 }
 

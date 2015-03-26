@@ -7,7 +7,7 @@ package me.sicongtang.jdk.tutorial.generics.exercises;
  * @author BobbyTang
  *
  */
-public class Ex3 {
+public class Ex03 {
 	public static <T> void exchange(T[] array, int a, int b) {
 		T tmp = array[a];
 		array[a] = array[b];

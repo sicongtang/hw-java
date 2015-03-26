@@ -8,7 +8,11 @@ import java.util.List;
  * @author BobbyTang
  *
  */
-public class Ex7 {
+public class Ex07 {
+	/**
+	 * Yes, can compile
+	 * @param list
+	 */
 	public static void print(List<? extends Number> list) {
 		for (Number n : list)
 			System.out.print(n + " ");
